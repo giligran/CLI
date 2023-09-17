@@ -1,3 +1,4 @@
+const { Command } = require("commander");
 const {
   listContacts,
   getContactById,
@@ -5,14 +6,40 @@ const {
   addContact,
 } = require("./contacts");
 
-// console.log(
-//   listContacts().then((contacts) => {
-//     console.log(typeof contacts); // it's Object
-//     console.log(contacts); // is it array?
-//   })
-// );
+const program = new Command();
 
-// console.log(typeof undefined); // it's undefined
-// console.log(typeof Promise); // it's function
+program
+  .option("-a, --action <type>", "choose action")
+  .option("-i, --id <type>", "user id")
+  .option("-n, --name <type>", "user name")
+  .option("-e, --email <type>", "user email")
+  .option("-p, --phone <type>", "user phone");
 
-getContactById();
+program.parse(process.argv);
+
+const argv = program.opts();
+
+async function invokeAction({ action, id, name, email, phone }) {
+  switch (action) {
+    case "list":
+      const contacts = await listContacts();
+      console.log(contacts);
+      return contacts;
+    case "get":
+      const contact = await getContactById(id);
+      console.log(contact);
+      return contact;
+    case "remove":
+      const contactToDelete = await removeContact();
+      console.log(contactToDelete);
+      return contactToDelete;
+    case "add":
+      const newContact = await addContact({ name, email, phone });
+      console.log(newContact);
+      return newContact;
+    default:
+      console.warn("\x1B[31m Unknown action type!");
+  }
+}
+
+invokeAction(argv);
