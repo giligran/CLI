@@ -2,8 +2,13 @@ const fs = require("fs/promises");
 const { nanoid } = require("nanoid");
 const path = require("path");
 
+// Define the file path for storing contacts data.
 const filePath = path.join(__dirname, "/db/contacts.json");
 
+/**
+ * Retrieve the list of contacts from the JSON file.
+ * @returns {Promise<Array>} A Promise that resolves to an array of contacts.
+ */
 const listContacts = async () => {
   try {
     const data = await fs.readFile(filePath, "utf8");
@@ -11,9 +16,15 @@ const listContacts = async () => {
     return contacts;
   } catch (error) {
     console.error(error);
+    console.warn("An error occurred while reading contacts data.");
   }
 };
 
+/**
+ * Get a contact by its unique identifier (ID).
+ * @param {string} contactId - The ID of the contact to retrieve.
+ * @returns {Promise<Object|null>} A Promise that resolves to the retrieved contact or null if not found.
+ */
 const getContactById = async (contactId) => {
   try {
     const contacts = await listContacts();
@@ -21,15 +32,20 @@ const getContactById = async (contactId) => {
     return contact || null;
   } catch (e) {
     console.error(e);
+    console.warn(`Contact with ID ${id} not found.`);
   }
 };
 
+/**
+ * Remove a contact by its unique identifier (ID).
+ * @param {string} contactId - The ID of the contact to remove.
+ * @returns {Promise<Object|null>} A Promise that resolves to the removed contact or null if not found.
+ */
 const removeContact = async (contactId) => {
   try {
     const data = await listContacts();
 
     const contactToDelete = data.find((item) => item.id === contactId);
-
     if (!contactToDelete) {
       return null;
     }
@@ -41,8 +57,15 @@ const removeContact = async (contactId) => {
     return contactToDelete;
   } catch (e) {
     console.error(e);
+    console.warn(`Contact with ID ${id} not found. No changes were made.`);
   }
 };
+
+/**
+ * Add a new contact to the list of contacts.
+ * @param {Object} contact - The contact object with properties (name, email, phone).
+ * @returns {Promise<Object|null>} A Promise that resolves to the added contact or null if there was an error.
+ */
 const addContact = async (contact) => {
   const { name, email, phone } = contact;
   let id = nanoid();
